@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SpamGuard - Intelligent Email Analysis</title>
+    <meta name="description" content="SpamGuard detects spam and malicious email content instantly using AI analysis.">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --border-color: rgba(255, 255, 255, 0.1);
+            --primary: #8b5cf6;
+            --secondary: #3b82f6;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --error: #ef4444;
+            --success: #22c55e;
+            --gradient-text: linear-gradient(to right, #a78bfa, #60a5fa);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background-image:
+                radial-gradient(circle at 15% 50%, rgba(139, 92, 246, 0.15), transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(59, 130, 246, 0.15), transparent 25%);
+        }
+
+        /* NAV */
+        .navbar {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            position: relative;
+            padding: 1.5rem 5%;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-color);
+            min-height: 80px;
+        }
+
+        .logo {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.5rem;
+            font-weight: 800;
+            text-decoration: none;
+            letter-spacing: 1px;
+            padding: 0.5rem 1.5rem;
+            background: rgba(139, 92, 246, 0.15);
+            border: 1px solid rgba(139, 92, 246, 0.4);
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.2);
+            background-image: var(--gradient-text);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .logo:hover {
+            box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
+            transform: translateX(-50%) translateY(-2px);
+        }
+
+        .nav-links a {
+            color: var(--text-main);
+            text-decoration: none;
+            margin-left: 1.5rem;
+            font-weight: 500;
+            transition: color 0.3s;
+            cursor: pointer;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .nav-home {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(59, 130, 246, 0.2));
+            border: 1px solid rgba(139, 92, 246, 0.35);
+            border-radius: 0.5rem;
+            padding: 0.35rem 0.85rem !important;
+            font-size: 0.9rem;
+            transition: all 0.3s ease !important;
+        }
+
+        .nav-home:hover {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.4), rgba(59, 130, 246, 0.4)) !important;
+            box-shadow: 0 0 12px rgba(139, 92, 246, 0.4);
+            color: #fff !important;
+        }
+
+        /* LAYOUT */
+        .container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 3rem 1rem;
+        }
+
+        .page {
+            display: none;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .page.active {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .glass-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border-color);
+            border-radius: 1rem;
+            padding: 2.5rem;
+            width: 100%;
+            max-width: 600px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        /* FORMS */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-muted);
+        }
+
+        input[type="text"],
+        input[type="password"],
+        textarea {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            color: var(--text-main);
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus,
+        input[type="password"]:focus,
+        textarea:focus {
+            border-color: var(--primary);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 150px;
+        }
+
+        /* BUTTONS */
+        .btn {
+            width: 100%;
+            padding: 0.875rem;
+            border: none;
+            border-radius: 0.5rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px -10px var(--primary);
+        }
+
+        .btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            width: auto;
+            padding: 0.875rem 1.5rem;
+        }
+
+        .btn-outline:hover {
+            background: rgba(139, 92, 246, 0.15);
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+        }
+
+        /* DIVIDER */
+        .divider {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            margin: 1.5rem 0;
+            color: var(--text-muted);
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .divider:not(:empty)::before {
+            margin-right: .25em;
+        }
+
+        .divider:not(:empty)::after {
+            margin-left: .25em;
+        }
+
+        /* FILE UPLOAD */
+        .file-upload-wrapper {
+            position: relative;
+            width: 100%;
+            height: 60px;
+            border: 2px dashed var(--border-color);
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: border-color 0.3s;
+        }
+
+        .file-upload-wrapper:hover {
+            border-color: var(--primary);
+        }
+
+        .file-upload-wrapper input[type="file"] {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .file-upload-text {
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        /* RESULTS */
+        .results-card {
+            margin-top: 2rem;
+            display: none;
+        }
+
+        .score-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .score-circle {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: 700;
+            border: 4px solid var(--success);
+            box-shadow: 0 0 20px rgba(34, 197, 94, 0.2);
+        }
+
+        .score-circle.danger {
+            border-color: var(--error);
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.2);
+        }
+
+        .score-circle.warning {
+            border-color: #f59e0b;
+            box-shadow: 0 0 20px rgba(245, 158, 11, 0.2);
+        }
+
+        .highlights-title {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            color: var(--text-muted);
+        }
+
+        .highlight-item {
+            background: rgba(239, 68, 68, 0.1);
+            border-left: 3px solid var(--error);
+            padding: 0.75rem 1rem;
+            margin-bottom: 0.75rem;
+            border-radius: 0 0.5rem 0.5rem 0;
+            font-size: 0.9rem;
+        }
+
+        /* DASHBOARD TABLE */
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .history-table th,
+        .history-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .history-table th {
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .history-table tr:hover td {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-safe {
+            background: rgba(34, 197, 94, 0.2);
+            color: var(--success);
+        }
+
+        .badge-warning {
+            background: rgba(245, 158, 11, 0.2);
+            color: #f59e0b;
+        }
+
+        .badge-danger {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--error);
+        }
+
+        /* UTILS */
+        .hidden {
+            display: none !important;
+        }
+
+        .loader {
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-top: 3px solid white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .error-msg {
+            color: var(--error);
+            margin-bottom: 1rem;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        .link-muted {
+            text-align: center;
+            margin-top: 1.5rem;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .link-muted a {
+            color: var(--primary);
+            cursor: pointer;
+            text-decoration: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <span class="logo" onclick="navigate('home')">SpamGuard</span>
+        <div class="nav-links" id="nav-links">
+            <a class="nav-home" onclick="navigate('home')" id="nav-home-btn">&#127968; Home</a>
+            <a onclick="navigate('login')" id="nav-login">Login</a>
+            <a onclick="navigate('register')" id="nav-register">Register</a>
+            <a onclick="navigate('dashboard')" id="nav-dashboard" class="hidden">Dashboard</a>
+            <a onclick="doLogout()" id="nav-logout" class="hidden">Logout</a>
+        </div>
+    </nav>
+
+    <div class="container">
+
+        <!-- ========== PAGE: HOME / SCANNER ========== -->
+        <div class="page active" id="page-home">
+            <div class="glass-card">
+                <h1>Analyze Email</h1>
+                <p class="subtitle">Detect spam and malicious content instantly.</p>
+                <div id="error-home" class="error-msg hidden"></div>
+
+                <div class="form-group">
+                    <label for="email-content">Paste Email Content</label>
+                    <textarea id="email-content" placeholder="Paste the email text here..."></textarea>
+                </div>
+                <button class="btn" id="scan-text-btn" onclick="scanText()">Analyze Text</button>
+
+                <div class="divider">OR</div>
+
+                <div class="form-group">
+                    <div class="file-upload-wrapper">
+                        <span class="file-upload-text" id="file-name-display">Upload .eml or .txt file</span>
+                        <input type="file" id="email-file" accept=".txt,.eml" onchange="updateFileName(this)">
+                    </div>
+                </div>
+                <button class="btn" id="scan-file-btn" onclick="scanFile()">Analyze File</button>
+
+                <!-- Results -->
+                <div id="results-section" class="results-card">
+                    <div class="divider">Analysis Results</div>
+                    <div class="score-container">
+                        <div id="score-circle" class="score-circle">
+                            <span id="score-text">0%</span>
+                        </div>
+                    </div>
+                    <h3 id="result-status" style="text-align:center; margin-bottom:1.5rem;">Safe</h3>
+                    <div id="highlights-container" class="hidden">
+                        <div class="highlights-title">Suspicious Portions Detected:</div>
+                        <div id="highlights-list"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========== PAGE: LOGIN ========== -->
+        <div class="page" id="page-login">
+            <div class="glass-card" style="max-width:400px;">
+                <h1>Welcome Back</h1>
+                <p class="subtitle">Login to view your history</p>
+                <div id="error-login" class="error-msg hidden"></div>
+
+                <div class="form-group">
+                    <label for="login-username">Username</label>
+                    <input type="text" id="login-username" placeholder="Enter username">
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Password</label>
+                    <input type="password" id="login-password" placeholder="Enter password">
+                </div>
+                <button class="btn" id="login-btn" onclick="doLogin()">Login</button>
+                <p class="link-muted">Don't have an account? <a onclick="navigate('register')">Register</a></p>
+            </div>
+        </div>
+
+        <!-- ========== PAGE: REGISTER ========== -->
+        <div class="page" id="page-register">
+            <div class="glass-card" style="max-width:400px;">
+                <h1>Create Account</h1>
+                <p class="subtitle">Join to track your scan history</p>
+                <div id="error-register" class="error-msg hidden"></div>
+
+                <div class="form-group">
+                    <label for="reg-username">Username</label>
+                    <input type="text" id="reg-username" placeholder="Choose a username">
+                </div>
+                <div class="form-group">
+                    <label for="reg-password">Password</label>
+                    <input type="password" id="reg-password" placeholder="Choose a password">
+                </div>
+                <button class="btn" id="register-btn" onclick="doRegister()">Register</button>
+                <p class="link-muted">Already have an account? <a onclick="navigate('login')">Login</a></p>
+            </div>
+        </div>
+
+        <!-- ========== PAGE: DASHBOARD ========== -->
+        <div class="page" id="page-dashboard">
+
+            <!-- Guest view -->
+            <div id="guest-banner" class="glass-card hidden" style="max-width:520px; text-align:center;">
+                <div style="font-size:3rem; margin-bottom:1rem;">&#128274;</div>
+                <h1>Login Required</h1>
+                <p class="subtitle">You need an account to view scan history.<br>But you can still scan — no login
+                    needed!</p>
+                <div style="display:flex; gap:1rem; justify-content:center; margin-top:2rem; flex-wrap:wrap;">
+                    <button class="btn" style="width:auto; padding:0.875rem 1.5rem;"
+                        onclick="navigate('home')">&#127968; Go Home &amp; Scan</button>
+                    <button class="btn btn-outline" onclick="navigate('login')">Login</button>
+                    <button class="btn btn-outline" onclick="navigate('register')">Register</button>
+                </div>
+            </div>
+
+            <!-- Authenticated view -->
+            <div id="history-card" class="glass-card hidden" style="max-width:900px;">
+                <h1>Scan History</h1>
+                <p class="subtitle">Your previous email analysis results</p>
+                <div id="error-dashboard" class="error-msg hidden"></div>
+                <div style="overflow-x:auto;">
+                    <table class="history-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Email Snippet</th>
+                                <th>Spam Score</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="history-body">
+                            <tr>
+                                <td colspan="4" style="text-align:center;">Loading history...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+
+    </div><!-- /container -->
+
+    <script>
+        const API = 'http://localhost:8000';
+
+        // ── Router ──────────────────────────────────────────────────────────────
+        const pages = ['home', 'login', 'register', 'dashboard'];
+
+        function navigate(page) {
+            pages.forEach(p => {
+                document.getElementById('page-' + p).classList.remove('active');
+            });
+            document.getElementById('page-' + page).classList.add('active');
+            window.location.hash = page;
+            updateNav();
+            if (page === 'dashboard') initDashboard();
+        }
+
+        window.addEventListener('hashchange', () => {
+            const hash = location.hash.replace('#', '') || 'home';
+            navigate(pages.includes(hash) ? hash : 'home');
+        });
+
+        // ── Auth ────────────────────────────────────────────────────────────────
+        function isAuthenticated() { return !!localStorage.getItem('token'); }
+
+        function updateNav() {
+            const auth = isAuthenticated();
+            document.getElementById('nav-login').classList.toggle('hidden', auth);
+            document.getElementById('nav-register').classList.toggle('hidden', auth);
+            document.getElementById('nav-dashboard').classList.toggle('hidden', !auth);
+            document.getElementById('nav-logout').classList.toggle('hidden', !auth);
+            // Hide home button on home page
+            const onHome = (location.hash === '' || location.hash === '#home');
+            document.getElementById('nav-home-btn').classList.toggle('hidden', onHome);
+        }
+
+        function doLogout() {
+            localStorage.removeItem('token');
+            navigate('home');
+        }
+
+        function showError(pageKey, msg) {
+            const el = document.getElementById('error-' + pageKey);
+            if (!el) return;
+            el.textContent = msg;
+            el.classList.remove('hidden');
+            setTimeout(() => el.classList.add('hidden'), 5000);
+        }
+
+        // ── Login ───────────────────────────────────────────────────────────────
+        async function doLogin() {
+            const username = document.getElementById('login-username').value.trim();
+            const password = document.getElementById('login-password').value;
+            const btn = document.getElementById('login-btn');
+            if (!username || !password) return showError('login', 'Please enter both username and password.');
+
+            btn.disabled = true;
+            btn.innerHTML = '<div class="loader"></div>';
+            try {
+                const res = await fetch(`${API}/token`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.detail || 'Login failed');
+                localStorage.setItem('token', data.access_token);
+                navigate('dashboard');
+            } catch (e) {
+                showError('login', e.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = 'Login';
+            }
+        }
+
+        // ── Register ─────────────────────────────────────────────────────────────
+        async function doRegister() {
+            const username = document.getElementById('reg-username').value.trim();
+            const password = document.getElementById('reg-password').value;
+            const btn = document.getElementById('register-btn');
+            if (!username || !password) return showError('register', 'Please enter both username and password.');
+
+            btn.disabled = true;
+            btn.innerHTML = '<div class="loader"></div>';
+            try {
+                const res = await fetch(`${API}/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.detail || 'Registration failed');
+                localStorage.setItem('token', data.access_token);
+                navigate('dashboard');
+            } catch (e) {
+                showError('register', e.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = 'Register';
+            }
+        }
+
+        // ── Scanner ──────────────────────────────────────────────────────────────
+        function updateFileName(input) {
+            document.getElementById('file-name-display').textContent =
+                input.files.length ? input.files[0].name : 'Upload .eml or .txt file';
+        }
+
+        function displayResults(data) {
+            const rs = document.getElementById('results-section');
+            const scoreText = document.getElementById('score-text');
+            const scoreCircle = document.getElementById('score-circle');
+            const statusText = document.getElementById('result-status');
+            const hlContainer = document.getElementById('highlights-container');
+            const hlList = document.getElementById('highlights-list');
+
+            rs.style.display = 'block';
+            const score = data.spam_percentage;
+            scoreText.textContent = `${score}%`;
+            scoreCircle.className = 'score-circle';
+
+            if (score > 70) {
+                scoreCircle.classList.add('danger');
+                statusText.textContent = 'High Risk - Likely Spam';
+                statusText.style.color = 'var(--error)';
+            } else if (score > 30) {
+                scoreCircle.classList.add('warning');
+                statusText.textContent = 'Moderate Risk - Proceed with Caution';
+                statusText.style.color = '#f59e0b';
+            } else {
+                statusText.textContent = 'Safe - Low Risk';
+                statusText.style.color = 'var(--success)';
+            }
+
+            if (data.highlighted_portions && data.highlighted_portions.length > 0) {
+                hlContainer.classList.remove('hidden');
+                hlList.innerHTML = '';
+                data.highlighted_portions.forEach(p => {
+                    const d = document.createElement('div');
+                    d.className = 'highlight-item';
+                    d.textContent = p;
+                    hlList.appendChild(d);
+                });
+            } else {
+                hlContainer.classList.add('hidden');
+            }
+            rs.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        async function scanText() {
+            const content = document.getElementById('email-content').value;
+            if (!content.trim()) return showError('home', 'Please enter some text to analyze.');
+            const btn = document.getElementById('scan-text-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<div class="loader"></div> Analyzing...';
+            try {
+                const headers = { 'Content-Type': 'application/json' };
+                if (isAuthenticated()) headers['Authorization'] = `Bearer ${localStorage.getItem('token')}`;
+                const res = await fetch(`${API}/scan/text`, { method: 'POST', headers, body: JSON.stringify({ content }) });
+                if (res.status === 401 && isAuthenticated()) { doLogout(); return; }
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.detail || 'Scan failed');
+                displayResults(data);
+            } catch (e) {
+                showError('home', e.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = 'Analyze Text';
+            }
+        }
+
+        async function scanFile() {
+            const fileInput = document.getElementById('email-file');
+            if (!fileInput.files.length) return showError('home', 'Please select a file to upload.');
+            const btn = document.getElementById('scan-file-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<div class="loader"></div> Analyzing...';
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+            try {
+                const headers = {};
+                if (isAuthenticated()) headers['Authorization'] = `Bearer ${localStorage.getItem('token')}`;
+                const res = await fetch(`${API}/scan/file`, { method: 'POST', headers, body: formData });
+                if (res.status === 401 && isAuthenticated()) { doLogout(); return; }
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.detail || 'Scan failed');
+                displayResults(data);
+            } catch (e) {
+                showError('home', e.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = 'Analyze File';
+            }
+        }
+
+        // ── Dashboard ────────────────────────────────────────────────────────────
+        function initDashboard() {
+            const guestBanner = document.getElementById('guest-banner');
+            const historyCard = document.getElementById('history-card');
+            if (!isAuthenticated()) {
+                guestBanner.classList.remove('hidden');
+                historyCard.classList.add('hidden');
+            } else {
+                guestBanner.classList.add('hidden');
+                historyCard.classList.remove('hidden');
+                fetchHistory();
+            }
+        }
+
+        async function fetchHistory() {
+            try {
+                const res = await fetch(`${API}/history`, {
+                    headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+                });
+                if (res.status === 401) { doLogout(); return; }
+                const data = await res.json();
+                const tbody = document.getElementById('history-body');
+                tbody.innerHTML = '';
+                if (data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">No scan history found.</td></tr>';
+                    return;
+                }
+                data.forEach(item => {
+                    const tr = document.createElement('tr');
+                    const dateStr = new Date(item.created_at).toLocaleString();
+                    let badge = '';
+                    if (item.spam_percentage > 70) badge = '<span class="badge badge-danger">Spam</span>';
+                    else if (item.spam_percentage > 30) badge = '<span class="badge badge-warning">Suspicious</span>';
+                    else badge = '<span class="badge badge-safe">Safe</span>';
+                    tr.innerHTML = `<td>${dateStr}</td><td>${item.email_snippet || 'File Upload'}</td><td><strong>${item.spam_percentage}%</strong></td><td>${badge}</td>`;
+                    tbody.appendChild(tr);
+                });
+            } catch (e) {
+                showError('dashboard', e.message);
+            }
+        }
+
+        // ── Boot ─────────────────────────────────────────────────────────────────
+        (function boot() {
+            const hash = location.hash.replace('#', '') || 'home';
+            navigate(pages.includes(hash) ? hash : 'home');
+        })();
+    </script>
+</body>
+
+</html>
